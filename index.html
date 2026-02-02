@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peg Solitaire Generator</title>
+    <style>
+        /* CSS: Η εμφάνιση */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none; /* Να μην επιλέγεται το κείμενο */
+        }
+
+        h1 { margin-top: 20px; color: #333; }
+
+        .controls {
+            margin: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button:hover { background-color: #0056b3; }
+
+        #board {
+            display: grid;
+            gap: 5px;
+            background-color: #8b5a2b; /* Ξύλο */
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            touch-action: none; 
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* ΜΠΛΕ ΠΙΟΝΙΑ */
+        .peg {
+            background-color: #004fa3; /* Μπλε */
+            border: 2px solid #003b7a; 
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.4);
+            cursor: grab; 
+            transition: transform 0.1s;
+            z-index: 2;
+        }
+
+        .peg:active {
+            cursor: grabbing;
+        }
+
+        .hole {
+            background-color: #5c3a1e;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.6);
+        }
+
+        .invalid {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .selected {
+            background-color: #1990ff;
+            box-shadow: 0 0 10px #0040ff;
+            z-index: 3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Peg Solitaire</h1>
+
+    <div class="controls">
+        <label>Μέγεθος (Size): </label>
+        <button onclick="initGame(3)">Size 3</button>
+        <button onclick="initGame(5)">Size 5</button>
+        <button onclick="initGame(7)">Size 7</button>
+        <button onclick="exportState()" style="background-color: #28a745; margin-left: 20px;">Export for AI</button>
+    </div>
+
+    <div id="board"></div>
+
+    <script>
+        let boardState = [];
+        let currentSize = 3;
+        let selectedCell = null; // Για το Click-Click
+        let draggedItem = null;  // Για το Drag-and-Drop
+
+        // Αρχικοποίηση State (Δεδομένων)
+        function initGame(n) {
+            currentSize = n;
+            selectedCell = null;
+            draggedItem = null;
+            
+            const totalWidth = 3 * n - 2;
+            const center = Math.floor(totalWidth / 2);
+            const limitStart = n - 1;
+            const limitEnd = 2 * n - 2;
+
+            boardState = [];
+
+            for (let r = 0; r < totalWidth; r++) {
+                let rowData = [];
+                for (let c = 0; c < totalWidth; c++) {
+                    const inRowStrip = r >= limitStart && r <= limitEnd;
+                    const inColStrip = c >= limitStart && c <= limitEnd;
+                    
+                    let value = null;
+                    if (inRowStrip || inColStrip) {
+                        if (r === center && c === center) value = 0;
+                        else value = 1;
+                    }
+                    rowData.push(value);
+                }
+                boardState.push(rowData);
+            }
+            
+            // Τώρα καλούμε τη συνάρτηση που ζωγραφίζει το HTML
+            renderBoard();
+        }
+
+        // --- Η ΣΥΝΑΡΤΗΣΗ ΠΟΥ ΕΛΕΙΠΕ: ZΩΓΡΑΦΙΣΜΑ ΤΑΜΠΛΟ ---
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            const totalWidth = boardState.length;
+            
+            // Καθαρισμός και Ρύθμιση Grid
+            boardEl.style.gridTemplateColumns = `repeat(${totalWidth}, 40px)`;
+            boardEl.innerHTML = ''; 
+            
+            for(let r=0; r<totalWidth; r++) {
+                for(let c=0; c<totalWidth; c++) {
+                    const value = boardState[r][c];
+                    const cellDiv = document.createElement('div');
+                    cellDiv.classList.add('cell');
+                    
+                    // Αποθήκευση συντεταγμένων
+                    cellDiv.dataset.r = r;
+                    cellDiv.dataset.c = c;
+                    
+                    // 1. Είναι άκυρο κελί;
+                    if (value === null) {
+                        cellDiv.classList.add('invalid');
+                    } 
+                    // 2. Είναι Πιόνι;
+                    else if (value === 1) {
+                        cellDiv.classList.add('peg');
+                        // Drag Events για πιόνια
+                        cellDiv.setAttribute('draggable', 'true');
+                        cellDiv.addEventListener('dragstart', (e) => handleDragStart(e, r, c));
+                    } 
+                    // 3. Είναι Τρύπα;
+                    else if (value === 0) {
+                        cellDiv.classList.add('hole');
+                        // Drop Events για τρύπες
+                        cellDiv.addEventListener('dragover', handleDragOver);
+                        cellDiv.addEventListener('drop', (e) => handleDrop(e, r, c));
+                    }
+
+                    // Αν είναι επιλεγμένο (Click mode)
+                    if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+                        cellDiv.classList.add('selected');
+                    }
+                    
+                    // Click Handler (Κοινό για όλα)
+                    cellDiv.onclick = () => handleClick(r, c);
+
+                    boardEl.appendChild(cellDiv);
+                }
+            }
+        }
+
+        // --- LOGIC: CLICK & CLICK ---
+        function handleClick(r, c) {
+            const val = boardState[r][c];
+            if (val === null) return;
+
+            if (val === 1) {
+                // Επιλογή πιονιού
+                selectedCell = {r, c};
+                renderBoard(); // Update UI
+            }
+            else if (val === 0 && selectedCell) {
+                // Προσπάθεια μετακίνησης
+                tryMove(selectedCell, {r, c});
+            }
+        }
+
+        // --- LOGIC: DRAG & DROP ---
+        function handleDragStart(e, r, c) {
+            draggedItem = {r, c};
+            // Επιλογή και οπτικά για να ξέρει ο χρήστης τι σέρνει
+            selectedCell = {r, c}; 
+            
+            // Το setTimeout βοηθάει να γίνει το στοιχείο ημιδιάφανο ενώ το σέρνεις
+            setTimeout(() => e.target.style.opacity = '0.5', 0);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); // Απαραίτητο για να επιτραπεί το Drop
+        }
+
+        function handleDrop(e, r, c) {
+            e.preventDefault();
+            if (draggedItem) {
+                tryMove(draggedItem, {r, c});
+                draggedItem = null;
+            }
+        }
+
+        // --- LOGIC: ΕΚΤΕΛΕΣΗ ΚΙΝΗΣΗΣ ---
+        function tryMove(start, end) {
+            const rDiff = end.r - start.r;
+            const cDiff = end.c - start.c;
+
+            // Έλεγχος απόστασης (ακριβώς 2 τετράγωνα κάθετα ή οριζόντια)
+            const isVertical = Math.abs(rDiff) === 2 && cDiff === 0;
+            const isHorizontal = Math.abs(cDiff) === 2 && rDiff === 0;
+
+            if (isVertical || isHorizontal) {
+                const midR = start.r + rDiff / 2;
+                const midC = start.c + cDiff / 2;
+
+                // Έλεγχος αν υπάρχει πιόνι στη μέση για να το "φάμε"
+                if (boardState[midR][midC] === 1) {
+                    // ΕΚΤΕΛΕΣΗ
+                    boardState[start.r][start.c] = 0;
+                    boardState[midR][midC] = 0;
+                    boardState[end.r][end.c] = 1;
+
+                    selectedCell = null; // Καθαρισμός επιλογής
+                    renderBoard(); // Ενημέρωση όλου του ταμπλό
+                } else {
+                    renderBoard(); // Reset (ακύρωση drag opacity)
+                }
+            } else {
+                renderBoard(); // Reset
+            }
+        }
+
+        function exportState() {
+            const cleanGrid = boardState.map(row => 
+                row.map(cell => cell === null ? -1 : cell)
+            );
+            const data = { size: currentSize, grid: cleanGrid };
+            console.log(JSON.stringify(data));
+            alert("State exported to Console!");
+        }
+
+        // Εκκίνηση με το που ανοίγει η σελίδα
+        initGame(3);
+
+    </script>
+</body>
+</html>
