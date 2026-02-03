@@ -1,3 +1,8 @@
+# any state is described as a list of lists of items
+# the structure is exactly symmetrical but we could
+# say it's a row-store implementation
+# list of rows(row=list of items)
+
 def make_starting_state(size):
     state = list()
     for i in range(1, 3*size-1):
