@@ -43,8 +43,5 @@ class SearchProblem:
         
         return state[y1][x1] == PEG and state[y2][x2] == PEG and state[y3][x3] == EMPTY
 
-    def get_cost_of_actions(self, actions):
-        pass
-
 class PegSolitaireProblem(SearchProblem):
     pass

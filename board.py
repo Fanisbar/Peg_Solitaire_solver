@@ -12,6 +12,12 @@ def create_initial_board():
         [-1,-1, 1, 1, 1,-1,-1],
         [-1,-1, 1, 1, 1,-1,-1],
     ]
+    # board = [
+    #     [-1, 0, 1, -1],
+    #     [ 1, 0, 1,  1],
+    #     [-1, 0, 0, -1],
+    #     [-1, 0, 1, -1]
+    # ]
 
     return tuple(tuple(row) for row in board)
 
