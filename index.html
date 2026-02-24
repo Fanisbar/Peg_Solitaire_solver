@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peg Solitaire Generator</title>
+    <title>Peg Solitaire</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -96,10 +96,14 @@
 
     <div class="controls">
         <label>Μέγεθος (Size): </label>
-        <button onclick="initGame(3)">Size 3</button>
-        <button onclick="initGame(5)">Size 5</button>
-        <button onclick="initGame(7)">Size 7</button>
-        <button onclick="exportState()" style="background-color: #28a745; margin-left: 20px;">Export for AI</button>
+        <button onclick="initGame(3)">Size 7×7</button>
+        <button onclick="initGame(5)">Size 13×13</button>
+        <button onclick="initGame(7)">Size 19×19</button>
+
+        <button onclick="resetGame()" 
+                style="background-color: #dc3545; margin-left: 10px;">
+            Reset
+        </button>
     </div>
 
     <div id="board"></div>
@@ -226,7 +230,6 @@
                 const midC = start.c + cDiff / 2;
 
                 if (boardState[midR][midC] === 1) {
-                    // ΕΚΤΕΛΕΣΗ
                     boardState[start.r][start.c] = 0;
                     boardState[midR][midC] = 0;
                     boardState[end.r][end.c] = 1;
@@ -241,13 +244,10 @@
             }
         }
 
-        function exportState() {
-            const cleanGrid = boardState.map(row => 
-                row.map(cell => cell === null ? -1 : cell)
-            );
-            const data = { size: currentSize, grid: cleanGrid };
-            console.log(JSON.stringify(data));
-            alert("State exported to Console!");
+        function resetGame() {
+            selectedCell = null;
+            draggedItem = null;
+            initGame(currentSize);
         }
 
         initGame(3);

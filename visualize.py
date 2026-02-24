@@ -18,7 +18,7 @@ for move in solution_moves:
     current = apply_move(current, move)
     solution_states.append(current)
 
-# vizualisation
+# visualization
 
 is_playing = False
 current_index = 0
