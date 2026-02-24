@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peg Solitaire Generator</title>
     <style>
-        /* CSS: Η εμφάνιση */
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #f4f4f4;
@@ -14,7 +13,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            user-select: none; /* Να μην επιλέγεται το κείμενο */
+            user-select: none;
         }
 
         h1 { margin-top: 20px; color: #333; }
@@ -43,7 +42,7 @@
         #board {
             display: grid;
             gap: 5px;
-            background-color: #8b5a2b; /* Ξύλο */
+            background-color: #8b5a2b;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
@@ -60,9 +59,8 @@
             cursor: pointer;
         }
 
-        /* ΜΠΛΕ ΠΙΟΝΙΑ */
         .peg {
-            background-color: #004fa3; /* Μπλε */
+            background-color: #004fa3;
             border: 2px solid #003b7a; 
             box-shadow: inset -2px -2px 5px rgba(0,0,0,0.4);
             cursor: grab; 
@@ -109,10 +107,9 @@
     <script>
         let boardState = [];
         let currentSize = 3;
-        let selectedCell = null; // Για το Click-Click
-        let draggedItem = null;  // Για το Drag-and-Drop
+        let selectedCell = null;
+        let draggedItem = null;
 
-        // Αρχικοποίηση State (Δεδομένων)
         function initGame(n) {
             currentSize = n;
             selectedCell = null;
@@ -141,16 +138,13 @@
                 boardState.push(rowData);
             }
             
-            // Τώρα καλούμε τη συνάρτηση που ζωγραφίζει το HTML
             renderBoard();
         }
 
-        // --- Η ΣΥΝΑΡΤΗΣΗ ΠΟΥ ΕΛΕΙΠΕ: ZΩΓΡΑΦΙΣΜΑ ΤΑΜΠΛΟ ---
         function renderBoard() {
             const boardEl = document.getElementById('board');
             const totalWidth = boardState.length;
             
-            // Καθαρισμός και Ρύθμιση Grid
             boardEl.style.gridTemplateColumns = `repeat(${totalWidth}, 40px)`;
             boardEl.innerHTML = ''; 
             
@@ -160,35 +154,27 @@
                     const cellDiv = document.createElement('div');
                     cellDiv.classList.add('cell');
                     
-                    // Αποθήκευση συντεταγμένων
                     cellDiv.dataset.r = r;
                     cellDiv.dataset.c = c;
                     
-                    // 1. Είναι άκυρο κελί;
                     if (value === null) {
                         cellDiv.classList.add('invalid');
                     } 
-                    // 2. Είναι Πιόνι;
                     else if (value === 1) {
                         cellDiv.classList.add('peg');
-                        // Drag Events για πιόνια
                         cellDiv.setAttribute('draggable', 'true');
                         cellDiv.addEventListener('dragstart', (e) => handleDragStart(e, r, c));
                     } 
-                    // 3. Είναι Τρύπα;
                     else if (value === 0) {
                         cellDiv.classList.add('hole');
-                        // Drop Events για τρύπες
                         cellDiv.addEventListener('dragover', handleDragOver);
                         cellDiv.addEventListener('drop', (e) => handleDrop(e, r, c));
                     }
 
-                    // Αν είναι επιλεγμένο (Click mode)
                     if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
                         cellDiv.classList.add('selected');
                     }
                     
-                    // Click Handler (Κοινό για όλα)
                     cellDiv.onclick = () => handleClick(r, c);
 
                     boardEl.appendChild(cellDiv);
@@ -196,34 +182,28 @@
             }
         }
 
-        // --- LOGIC: CLICK & CLICK ---
         function handleClick(r, c) {
             const val = boardState[r][c];
             if (val === null) return;
 
             if (val === 1) {
-                // Επιλογή πιονιού
                 selectedCell = {r, c};
-                renderBoard(); // Update UI
+                renderBoard();
             }
             else if (val === 0 && selectedCell) {
-                // Προσπάθεια μετακίνησης
                 tryMove(selectedCell, {r, c});
             }
         }
 
-        // --- LOGIC: DRAG & DROP ---
         function handleDragStart(e, r, c) {
             draggedItem = {r, c};
-            // Επιλογή και οπτικά για να ξέρει ο χρήστης τι σέρνει
             selectedCell = {r, c}; 
             
-            // Το setTimeout βοηθάει να γίνει το στοιχείο ημιδιάφανο ενώ το σέρνεις
             setTimeout(() => e.target.style.opacity = '0.5', 0);
         }
 
         function handleDragOver(e) {
-            e.preventDefault(); // Απαραίτητο για να επιτραπεί το Drop
+            e.preventDefault();
         }
 
         function handleDrop(e, r, c) {
@@ -234,12 +214,10 @@
             }
         }
 
-        // --- LOGIC: ΕΚΤΕΛΕΣΗ ΚΙΝΗΣΗΣ ---
         function tryMove(start, end) {
             const rDiff = end.r - start.r;
             const cDiff = end.c - start.c;
 
-            // Έλεγχος απόστασης (ακριβώς 2 τετράγωνα κάθετα ή οριζόντια)
             const isVertical = Math.abs(rDiff) === 2 && cDiff === 0;
             const isHorizontal = Math.abs(cDiff) === 2 && rDiff === 0;
 
@@ -247,20 +225,19 @@
                 const midR = start.r + rDiff / 2;
                 const midC = start.c + cDiff / 2;
 
-                // Έλεγχος αν υπάρχει πιόνι στη μέση για να το "φάμε"
                 if (boardState[midR][midC] === 1) {
                     // ΕΚΤΕΛΕΣΗ
                     boardState[start.r][start.c] = 0;
                     boardState[midR][midC] = 0;
                     boardState[end.r][end.c] = 1;
 
-                    selectedCell = null; // Καθαρισμός επιλογής
-                    renderBoard(); // Ενημέρωση όλου του ταμπλό
+                    selectedCell = null;
+                    renderBoard();
                 } else {
-                    renderBoard(); // Reset (ακύρωση drag opacity)
+                    renderBoard();
                 }
             } else {
-                renderBoard(); // Reset
+                renderBoard();
             }
         }
 
@@ -273,7 +250,6 @@
             alert("State exported to Console!");
         }
 
-        // Εκκίνηση με το που ανοίγει η σελίδα
         initGame(3);
 
     </script>
