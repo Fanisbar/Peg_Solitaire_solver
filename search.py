@@ -46,3 +46,4 @@ def a_star(problem):
 
 def uniform_cost(problem):
     pass
+
