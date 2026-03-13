@@ -2,15 +2,21 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 from matplotlib.patches import Circle
 import numpy as np
+import sys
 
-from board import create_initial_board, apply_move, INVALID, EMPTY, PEG
+from board import create_board, apply_move, INVALID, EMPTY, PEG
 from problem import PegSolitaireProblem
-from search import dfs
+from search import dfs, bfs
 
 # solving the problem/game
-init_state = create_initial_board()
+BOARD_SIZE = 9  # supported values: 5, 7, 9
+init_state = create_board(BOARD_SIZE)
 peg_solitaire = PegSolitaireProblem(init_state)
 solution_moves = dfs(peg_solitaire)
+
+if not solution_moves and not peg_solitaire.is_goal_state(init_state):
+    print("No solution found for this board configuration.")
+    sys.exit(0)
 
 solution_states = [init_state]
 current = init_state
