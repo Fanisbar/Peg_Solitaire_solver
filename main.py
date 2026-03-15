@@ -9,7 +9,7 @@ from problem import PegSolitaireProblem
 from search import dfs, bfs
 
 # solving the problem/game
-BOARD_SIZE = 9  # supported values: 5, 7, 9
+BOARD_SIZE = 7  # supported values: 5, 7, 9
 init_state = create_board(BOARD_SIZE)
 peg_solitaire = PegSolitaireProblem(init_state)
 solution_moves = dfs(peg_solitaire)
