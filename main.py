@@ -4,13 +4,30 @@ from matplotlib.patches import Circle
 import numpy as np
 import sys
 
-from board import create_board, apply_move, INVALID, EMPTY, PEG
+from board import create_english_board, create_pyramid_board, create_diamond_board, create_fireplace_board, apply_move, INVALID, EMPTY, PEG
 from problem import PegSolitaireProblem
 from search import dfs, bfs
 
-# solving the problem/game
-BOARD_SIZE = 7  # supported values: 5, 7, 9
-init_state = create_board(BOARD_SIZE)
+if len(sys.argv) < 2:
+    print("Warning: a board configuration must be provided as an argument.")
+    print("Please try again with one of the folowing options: english, european, diamond, cross")
+    sys.exit(1)
+
+board_type = sys.argv[1].lower()
+
+if board_type == "english":
+    init_state = create_english_board()
+elif board_type == "pyramid":
+    init_state = create_pyramid_board()
+elif board_type == "diamond":
+    init_state = create_diamond_board()
+elif board_type == "fireplace":
+    init_state = create_fireplace_board()
+else:
+    print("Warning: invalid choice!")
+    print("Please try again with one of the folowing options: english, european, diamond, cross")
+    sys.exit(1)
+
 peg_solitaire = PegSolitaireProblem(init_state)
 solution_moves = dfs(peg_solitaire)
 
