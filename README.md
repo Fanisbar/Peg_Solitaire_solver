@@ -7,15 +7,11 @@ Currently, the project supports three board configurations:
 * **Fireplace**
 * **Diamond**
 
-**More info about the game:** [Peg solitaire on Wikipedia](https://en.wikipedia.org/wiki/Peg_solitaire)
-
----
+*More info about the game:* [Peg solitaire on Wikipedia](https://en.wikipedia.org/wiki/Peg_solitaire)  
 
 ## Play Online
 You can play the game directly in your browser!  
-**[Play Peg Solitaire](https://fanisbar.github.io/Peg_Solitaire_solver/)**
-
----
+**[Play Peg Solitaire](https://fanisbar.github.io/Peg_Solitaire_solver/)**  
 
 ## Run the AI Solver (Locally)
 The Python solver uses search algorithms (like DFS) to find a winning sequence of moves and visualizes the solution step-by-step using `matplotlib`.
