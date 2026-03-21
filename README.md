@@ -18,7 +18,6 @@ You can play the game directly in your browser!
 ---
 
 ## Run the AI Solver (Locally)
-
 The Python solver uses search algorithms (like DFS) to find a winning sequence of moves and visualizes the solution step-by-step using `matplotlib`.
 
 ### Prerequisites
@@ -33,6 +32,10 @@ Run the solver from the root of the repository by providing the board type as an
 ```bash
 python solver.py [english | diamond | fireplace]
 ```
+or
+```bash
+python3 solver.py [english | diamond | fireplace]
+```
 
 *Example:* `python solver.py english`
 
@@ -41,5 +44,5 @@ If you are using Windows Subsystem for Linux (WSL) and the visualization window 
 
 ```bash
 export DISPLAY=:0
-python main.py english
+python solver.py english
 ```
